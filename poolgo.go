@@ -13,6 +13,8 @@ type Pool struct {
 	Mutex sync.RWMutex
 	//map of workers. Need when to call worker by name
 	Workers map[string]workfunc
+	//Provide results
+	results map[int]chan interface{}
 	//just slice of workers
 	UnnamedWorkers []workfunc
 	Poolnums       int
@@ -48,10 +50,10 @@ func (pool *Pool) AddData(data []interface{}) {
 
 func (pool *Pool) Run(name string, param interface{}) {
 	for i := 0; i < pool.Poolnums; i++ {
-		go func(param interface{}) {
+		go func(param interface{}, idx int) {
 			result := pool.UnnamedWorkers[i](param)
-			fmt.Println(result)
-		}(pool.Data[i])
+			pool.results[i] <- result
+		}(pool.Data[i], i)
 	}
 }
 
@@ -63,6 +65,10 @@ func (pool *Pool) RunWithValues(name string, params []interface{}) {
 			fmt.Println(result)
 		}(i)
 	}
+}
+
+func(pool *Pool) GetReults()map[int]chan interface{} {
+	return pool.results
 }
 
 //Remove all workers in the case if worker are stopped
