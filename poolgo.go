@@ -1,28 +1,26 @@
 package poolgo
 
-import
-(
-	"sync"
+import (
 	"fmt"
+	"sync"
 )
 
-type
-(
+type (
 	workfunc func(interface{}) interface{}
 )
 
-type Pool struct{
+type Pool struct {
 	Mutex sync.RWMutex
 	//map of workers. Need when to call worker by name
-	Workers map[string] workfunc
+	Workers map[string]workfunc
 	//just slice of workers
-	UnnamedWorkers[] workfunc
-	Poolnums int
-	Data [] interface{}
+	UnnamedWorkers []workfunc
+	Poolnums       int
+	Data           []interface{}
 }
 
 //Create basic pool
-func Create (poolnum int) (*Pool){
+func Create(poolnum int) *Pool {
 	pool := new(Pool)
 	pool.Poolnums = poolnum
 	pool.Workers = make(map[string]workfunc)
@@ -31,26 +29,26 @@ func Create (poolnum int) (*Pool){
 }
 
 //Append new func for this pool
-func (pool*Pool) AppendFunc(name string, value func(interface{}) interface{}){
+func (pool *Pool) AppendFunc(name string, value func(interface{}) interface{}) {
 	pool.Workers[name] = value
 }
 
 //Append new work to unnamed slice
 //value is function
-func (pool*Pool) AppendFuncs(value func(interface{}) interface{}){
+func (pool *Pool) AppendFuncs(value func(interface{}) interface{}) {
 	for i := 0; i < pool.Poolnums; i++ {
 		pool.UnnamedWorkers = append(pool.UnnamedWorkers, value)
 	}
 }
 
 //Add data to workers
-func (pool*Pool) AddData(data []interface{}){
+func (pool *Pool) AddData(data []interface{}) {
 	pool.Data = data
 }
 
-func (pool*Pool) Run(name string, param interface{}){
+func (pool *Pool) Run(name string, param interface{}) {
 	for i := 0; i < pool.Poolnums; i++ {
-		go func (param interface{}) {
+		go func(param interface{}) {
 			result := pool.UnnamedWorkers[i](param)
 			fmt.Println(result)
 		}(pool.Data[i])
@@ -58,9 +56,9 @@ func (pool*Pool) Run(name string, param interface{}){
 }
 
 //Run jobs in first case - set list of params
-func(pool*Pool) RunWithValues(name string, params[] interface{}){
+func (pool *Pool) RunWithValues(name string, params []interface{}) {
 	for i := 0; i < pool.Poolnums; i++ {
-		go func(param int){
+		go func(param int) {
 			result := pool.Workers[name](params[param])
 			fmt.Println(result)
 		}(i)
@@ -68,10 +66,10 @@ func(pool*Pool) RunWithValues(name string, params[] interface{}){
 }
 
 //Remove all workers in the case if worker are stopped
-func (pool*Pool) RemoveAll() {
+func (pool *Pool) RemoveAll() {
 
 }
 
-func (pool*Pool) Close(){
+func (pool *Pool) Close() {
 	pool.Mutex.Lock()
 }
