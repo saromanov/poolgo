@@ -48,6 +48,7 @@ func (pool *Pool) AddData(data []interface{}) {
 	pool.Data = data
 }
 
+//Run  provides running of works
 func (pool *Pool) Run(name string, param interface{}) {
 	for i := 0; i < pool.Poolnums; i++ {
 		go func(param interface{}, idx int) {
@@ -67,7 +68,7 @@ func (pool *Pool) RunWithValues(name string, params []interface{}) {
 	}
 }
 
-func(pool *Pool) GetReults()map[int]chan interface{} {
+func (pool *Pool) GetReults() map[int]chan interface{} {
 	return pool.results
 }
 
